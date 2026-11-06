@@ -1,5 +1,7 @@
-'use client'
-
+import { NextResponse } from 'next/server'
+import { notFound } from 'next/navigation'
+import { sqlite } from '@/lib/db'
+import { SkillDistribute } from './_distribute'
 import { SkillEditor } from './_editor'
 import { SkillMetaForm } from './_meta-form'
 import { SkillVersions } from './_versions'
@@ -28,6 +30,6 @@ export function SkillDetailTabs({ skill: initialSkill }: { skill: Skill }) {
       <details className="rounded-2xl border bg-white p-4"><summary className="cursor-pointer text-sm font-medium text-slate-700">Frontmatter 原文</summary><pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-xl bg-slate-950 p-3 text-xs text-slate-200">{skill.frontmatter || '无 frontmatter'}</pre></details>
       <div className="flex items-center justify-between"><h2 className="text-lg font-semibold">元数据</h2><button type="button" onClick={() => setEditingMeta((value) => !value)} className="rounded-lg border px-3 py-2 text-sm">{editingMeta ? '取消编辑' : '编辑元数据'}</button></div>
       {editingMeta ? <SkillMetaForm skill={skill} onSaved={(updated) => { setSkill((current) => ({ ...current, ...updated })); setEditingMeta(false) }} /> : <div className="grid gap-4 md:grid-cols-2"><div className="rounded-2xl border bg-white p-4"><dl className="space-y-3 text-sm"><div className="flex justify-between"><dt>category</dt><dd>{skill.category || '—'}</dd></div><div className="flex justify-between"><dt>business scene</dt><dd>{skill.business_scene || '—'}</dd></div><div className="flex justify-between"><dt>tags</dt><dd>{tags.join(', ') || '—'}</dd></div><div className="flex justify-between"><dt>projects</dt><dd>{projects.join(', ') || '—'}</dd></div><div className="flex justify-between"><dt>tools</dt><dd>{tools.join(', ') || '—'}</dd></div></dl></div><div className="rounded-2xl border bg-white p-4"><h3 className="mb-3 text-sm font-medium">备注</h3><div className="text-sm leading-6 text-slate-600">{skill.notes || '暂无备注'}</div></div></div>}
-    </div> : activeTab === 'editor' ? <SkillEditor skillId={skill.id} /> : activeTab === 'versions' ? <SkillVersions skillId={skill.id} /> : <div className="rounded-2xl border border-dashed bg-slate-50 p-10 text-center text-sm text-slate-500">{activeTab === 'quick-test' ? '单 Skill 测试功能正在建设中' : '分发视图功能正在建设中'}</div>}
+    </div> : activeTab === 'editor' ? <SkillEditor skillId={skill.id} /> : activeTab === 'versions' ? <SkillVersions skillId={skill.id} /> : activeTab === 'distribution' ? <SkillDistribute skillId={skill.id} /> : <div className="rounded-2xl border border-dashed bg-slate-50 p-10 text-center text-sm text-slate-500">单 Skill 测试功能正在建设中</div>}
   </div>
 }
