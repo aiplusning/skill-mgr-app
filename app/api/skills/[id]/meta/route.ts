@@ -4,73 +4,41 @@ import { fail, ok } from '@/lib/api-helpers'
 
 export const dynamic = 'force-dynamic'
 
-export async function PATCH(request: Request, context: { params: { id: string } }) {
-  const id = context.params?.id
-  if (!id) {
-    return NextResponse.json(fail('INVALID_ID', 'Skill id is required', 400), { status: 400 })
-  }
+export async function PATCH(request: Request, context: { params: Promise<{ id: string }> | { id: string } }) {
+  const { id } = await context.params
+  let body: Record<string, unknown>
+  try { body = await request.json() } catch { return NextResponse.json(fail('INVALID_BODY', 'Request body must be valid JSON', 400), { status: 400 }) }
+  if (!sqlite.prepare('SELECT 1 FROM skills WHERE id = ?').get(id)) return NextResponse.json(fail('SKILL_NOT_FOUND', 'Skill not found', 404), { status: 404 })
 
-  let body: Record<string, unknown> = {}
-  try {
-    body = await request.json()
-  } catch {
-    return NextResponse.json(fail('INVALID_BODY', 'Request body must be valid JSON', 400), { status: 400 })
-  }
-
-  const category = typeof body.category === 'string' ? body.category : undefined
-  const businessScene = typeof body.business_scene === 'string' ? body.business_scene : undefined
-  const notes = typeof body.notes === 'string' ? body.notes : undefined
-
-  const tagIds = Array.isArray(body.tag_ids) ? body.tag_ids.filter((item): item is string => typeof item === 'string') : []
-  const projectIds = Array.isArray(body.project_ids) ? body.project_ids.filter((item): item is string => typeof item === 'string') : []
-  const toolIds = Array.isArray(body.tool_ids) ? body.tool_ids.filter((item): item is string => typeof item === 'string') : []
-
-  const exists = sqlite.prepare('SELECT 1 FROM skills WHERE id = ?').get(id)
-  if (!exists) {
-    return NextResponse.json(fail('SKILL_NOT_FOUND', 'Skill not found', 404), { status: 404 })
-  }
-
-  const tx = sqlite.transaction(() => {
-    if (category !== undefined || businessScene !== undefined || notes !== undefined) {
-      const updates: string[] = []
-      const values: unknown[] = []
-
-      if (category !== undefined) {
-        updates.push('category = ?')
-        values.push(category)
-      }
-      if (businessScene !== undefined) {
-        updates.push('business_scene = ?')
-        values.push(businessScene)
-      }
-      if (notes !== undefined) {
-        updates.push('notes = ?')
-        values.push(notes)
-      }
-
-      values.push(id)
-      sqlite.prepare(`UPDATE skills SET ${updates.join(', ')} WHERE id = ?`).run(...values)
+  const transaction = sqlite.transaction(() => {
+    const fields: string[] = []
+    const values: unknown[] = []
+    for (const [key, column] of [['category', 'category'], ['business_scene', 'business_scene'], ['notes', 'notes']] as const) {
+      if (key in body) { fields.push(`${column} = ?`); values.push(typeof body[key] === 'string' ? body[key] : null) }
     }
+    if (fields.length) sqlite.prepare(`UPDATE skills SET ${fields.join(', ')}, updated_at = MAX(unixepoch(), updated_at + 1) WHERE id = ?`).run(...values, id)
 
-    if (tagIds.length || projectIds.length || toolIds.length) {
-      sqlite.prepare('DELETE FROM skill_tags WHERE skill_id = ?').run(id)
-      sqlite.prepare('DELETE FROM skill_projects WHERE skill_id = ?').run(id)
-      sqlite.prepare('DELETE FROM skill_tools WHERE skill_id = ?').run(id)
-
-      for (const tagId of tagIds) {
-        sqlite.prepare('INSERT OR IGNORE INTO skill_tags (skill_id, tag_id) VALUES (?, ?)').run(id, tagId)
-      }
-      for (const projectId of projectIds) {
-        sqlite.prepare('INSERT OR IGNORE INTO skill_projects (skill_id, project_id) VALUES (?, ?)').run(id, projectId)
-      }
-      for (const toolId of toolIds) {
-        sqlite.prepare('INSERT OR IGNORE INTO skill_tools (skill_id, tool_id) VALUES (?, ?)').run(id, toolId)
-      }
+    const relations = [
+      { key: 'tag_ids', table: 'skill_tags', column: 'tag_id' },
+      { key: 'project_ids', table: 'skill_projects', column: 'project_id' },
+      { key: 'tool_ids', table: 'skill_tools', column: 'tool_id' },
+    ] as const
+    for (const relation of relations) {
+      if (!(relation.key in body)) continue
+      const ids = body[relation.key]
+      if (!Array.isArray(ids) || ids.some((value) => typeof value !== 'string')) throw new Error(`${relation.key} must be an array of IDs`)
+      sqlite.prepare(`DELETE FROM ${relation.table} WHERE skill_id = ?`).run(id)
+      const insert = sqlite.prepare(`INSERT INTO ${relation.table} (skill_id, ${relation.column}) VALUES (?, ?)`)
+      for (const relatedId of new Set(ids as string[])) insert.run(id, relatedId)
     }
   })
 
-  tx()
-
+  try { transaction() } catch (error) {
+    return NextResponse.json(fail('INVALID_METADATA', error instanceof Error ? error.message : 'Invalid metadata', 400), { status: 400 })
+  }
   const skill = sqlite.prepare('SELECT * FROM skills WHERE id = ?').get(id) as Record<string, unknown>
-  return NextResponse.json(ok(skill))
+  const tags = sqlite.prepare('SELECT t.id, t.name FROM skill_tags st JOIN tags t ON t.id = st.tag_id WHERE st.skill_id = ? ORDER BY t.name').all(id)
+  const projects = sqlite.prepare('SELECT p.id, p.name FROM skill_projects sp JOIN projects p ON p.id = sp.project_id WHERE sp.skill_id = ? ORDER BY p.name').all(id)
+  const tools = sqlite.prepare('SELECT t.id, t.name FROM skill_tools st JOIN tools t ON t.id = st.tool_id WHERE st.skill_id = ? ORDER BY t.name').all(id)
+  return NextResponse.json(ok({ ...skill, tags, projects, tools }))
 }
