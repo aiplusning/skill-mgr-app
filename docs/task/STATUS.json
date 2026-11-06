@@ -1,0 +1,114 @@
+{
+  "current": "T01",
+  "tasks": {
+    "T01": {
+      "status": "pending",
+      "deps": [],
+      "attempts": 0,
+      "started_at": null,
+      "finished_at": null,
+      "verify": null
+    },
+    "T02": {
+      "status": "pending",
+      "deps": [
+        "T01"
+      ],
+      "attempts": 0
+    },
+    "T03": {
+      "status": "pending",
+      "deps": [
+        "T02"
+      ],
+      "attempts": 0
+    },
+    "T04": {
+      "status": "pending",
+      "deps": [
+        "T03"
+      ],
+      "attempts": 0
+    },
+    "T05": {
+      "status": "pending",
+      "deps": [
+        "T04"
+      ],
+      "attempts": 0
+    },
+    "T06": {
+      "status": "pending",
+      "deps": [
+        "T05"
+      ],
+      "attempts": 0
+    },
+    "T07": {
+      "status": "pending",
+      "deps": [
+        "T05"
+      ],
+      "attempts": 0
+    },
+    "T08": {
+      "status": "pending",
+      "deps": [
+        "T07"
+      ],
+      "attempts": 0
+    },
+    "T09": {
+      "status": "pending",
+      "deps": [
+        "T03"
+      ],
+      "attempts": 0
+    },
+    "T10": {
+      "status": "pending",
+      "deps": [
+        "T09"
+      ],
+      "attempts": 0
+    },
+    "T11": {
+      "status": "pending",
+      "deps": [
+        "T10"
+      ],
+      "attempts": 0
+    },
+    "T12": {
+      "status": "pending",
+      "deps": [
+        "T11"
+      ],
+      "attempts": 0
+    },
+    "T13": {
+      "status": "pending",
+      "deps": [
+        "T06",
+        "T07"
+      ],
+      "attempts": 0
+    },
+    "T14": {
+      "status": "pending",
+      "deps": [
+        "T09"
+      ],
+      "attempts": 0
+    },
+    "T15": {
+      "status": "pending",
+      "deps": [
+        "T12",
+        "T13",
+        "T14"
+      ],
+      "attempts": 0
+    }
+  }
+}
