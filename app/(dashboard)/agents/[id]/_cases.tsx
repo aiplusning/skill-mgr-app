@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { RunCompare } from './_run-compare'
+import { AgentRunsHistory } from './_runs-history'
 
 type TestCase = { id: string; name: string; user_input: string; context: string | null; expected: string | null; created_at: number }
 type RunResult = { id: string; with_agent: number; output?: string | null; error?: string | null }
@@ -89,6 +90,7 @@ export function AgentCases({ agentId }: { agentId: string }) {
         <RunCompare caseId={testCase.id} />
       </article>)}
     </div>}
+    <AgentRunsHistory agentId={agentId} />
 
     {preview && <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setPreview(null) }}><div role="dialog" aria-modal="true" aria-labelledby="prompt-preview-title" className="max-h-[85vh] w-full max-w-3xl space-y-3 overflow-auto rounded-2xl bg-white p-5"><div className="flex justify-between"><h3 id="prompt-preview-title" className="font-semibold">将发送的 System Prompt</h3><button type="button" onClick={() => setPreview(null)} className="rounded border px-2 py-1 text-sm">关闭</button></div><pre className="whitespace-pre-wrap rounded-xl bg-slate-950 p-4 text-xs text-slate-100">{preview.prompt || '（空 Prompt）'}</pre></div></div>}
   </section>
