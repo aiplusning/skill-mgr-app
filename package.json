@@ -1,14 +1,31 @@
 {
-  "name": "junmp-skill-app",
+  "name": "skill-mgr-app",
   "version": "1.0.0",
-  "description": "",
-  "main": "dist/index.js",
+  "private": true,
   "scripts": {
-    "build": "tsc"
+    "dev": "next dev -p 4317",
+    "build": "next build",
+    "start": "next start -p 4317",
+    "lint": "eslint ."
   },
-  "dependencies": {},
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.2.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.468.0",
+    "next": "^15.5.6",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tailwind-merge": "^3.3.1"
+  },
   "devDependencies": {
-    "typescript": "^6.0.3"
-  },
-  "private": true
+    "@tailwindcss/postcss": "^4.1.16",
+    "@types/node": "^22.15.30",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.7",
+    "eslint": "^9.35.0",
+    "eslint-config-next": "^15.5.6",
+    "tailwindcss": "^4.1.16",
+    "typescript": "^5.8.3"
+  }
 }

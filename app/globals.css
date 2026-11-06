@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --background: #f7f8fa;
+  --foreground: #20252d;
+  --muted: #737d8c;
+  --line: #e7eaf0;
+  --accent: #5268d8;
+}
+
+* { box-sizing: border-box; }
+
+html, body { min-height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.shell { width: min(100% - 48px, 1040px); margin: 0 auto; }
+.topbar { height: 76px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.brand { display: inline-flex; gap: 11px; align-items: center; font-size: 15px; font-weight: 650; letter-spacing: -.02em; }
+.brand-mark, .card-mark { display: grid; place-items: center; color: white; background: var(--accent); border-radius: 10px; font-weight: 700; }
+.brand-mark { width: 32px; height: 32px; font-size: 15px; }
+.local-badge { display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px; background: white; color: #596372; font-size: 12px; }
+.local-badge > span { width: 7px; height: 7px; border-radius: 50%; background: #35a875; }
+.hero { padding: 91px 0 52px; }
+.eyebrow { margin: 0 0 18px; color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .14em; }
+h1 { margin: 0; font-size: clamp(42px, 7vw, 68px); line-height: 1.12; letter-spacing: -.065em; font-weight: 650; }
+.hero-copy { margin: 21px 0 0; color: var(--muted); font-size: 16px; line-height: 1.7; }
+.destination-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.destination-card { display: flex; align-items: center; gap: 17px; min-height: 112px; padding: 22px; border: 1px solid var(--line); border-radius: 14px; background: white; transition: border-color .16s ease, transform .16s ease, box-shadow .16s ease; }
+.destination-card:hover { transform: translateY(-2px); border-color: #cbd2f5; box-shadow: 0 10px 24px #2636580c; }
+.card-mark { flex: 0 0 43px; width: 43px; height: 43px; border-radius: 12px; background: #eef0ff; color: var(--accent); font-size: 17px; }
+.card-content { display: grid; gap: 6px; flex: 1; }
+.card-title { font-size: 16px; font-weight: 650; }
+.card-description { color: var(--muted); font-size: 13px; }
+.card-arrow { color: #929aaa; font-size: 19px; }
+.home-footer { padding: 54px 0 28px; color: #929aaa; font-size: 12px; }
+
+@media (max-width: 600px) {
+  .shell { width: min(100% - 32px, 1040px); }
+  .hero { padding: 70px 0 38px; }
+  .destination-grid { grid-template-columns: 1fr; }
+  .destination-card { min-height: 100px; }
+}
