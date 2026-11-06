@@ -1,13 +1,22 @@
 #!/usr/bin/env bun
-import fs from 'fs'
-const s = JSON.parse(fs.readFileSync('docs/STATUS.json', 'utf8'))
-const sym: Record<string,string> = {
-    passed:'✓', running:'●', pending:'○', failed:'✗', blocked:'⊘'
+import { readFileSync } from 'node:fs'
+
+const statusPath = new URL('../docs/task/STATUS.json', import.meta.url)
+const status = JSON.parse(readFileSync(statusPath, 'utf8')) as {
+  current: string
+  tasks: Record<string, { status: string }>
 }
-const ids = Object.keys(s.tasks).sort()
-const line = ids.map(id => `${id} ${sym[s.tasks[id].status] ?? '?'}`).join('  ')
-const passed = ids.filter(id => s.tasks[id].status === 'passed').length
-console.log(line)
-console.log(`[${passed}/${ids.length}]  current=${s.current}`)
-const blocked = ids.filter(id => s.tasks[id].status === 'blocked')
-if (blocked.length) console.log('BLOCKED:', blocked.join(', '))
+const symbols: Record<string, string> = {
+  passed: '✓', running: '●', pending: '○', failed: '✗', blocked: '⊘',
+}
+const ids = Object.keys(status.tasks).sort()
+const width = Math.max(4, ...ids.map((id) => id.length))
+console.log(`${'任务'.padEnd(width)}  状态`)
+for (const id of ids) {
+  const taskStatus = status.tasks[id].status
+  console.log(`${id.padEnd(width)}  ${symbols[taskStatus] ?? '?'} ${taskStatus}`)
+}
+const passed = ids.filter((id) => status.tasks[id].status === 'passed').length
+console.log(`[${passed}/${ids.length}]  current=${status.current}`)
+const blocked = ids.filter((id) => status.tasks[id].status === 'blocked')
+if (blocked.length) console.log(`BLOCKED: ${blocked.join(', ')}`)
